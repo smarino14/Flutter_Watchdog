@@ -29,12 +29,12 @@ class _NavigationScreenState extends State<NavigationScreen> {
         ),
         items: [
           PaneItem(
-            icon: const Icon(FluentIcons.a_t_p_logo),
+            icon: const Icon(FluentIcons.process),
             //body: const Text(''),
             title: const Text('Containers State'),
           ),
           PaneItem(
-            icon: const Icon(FluentIcons.text_box),
+            icon: const Icon(FluentIcons.chat_bot),
             //body: const Text(''),
             title: const Text('Container Stats'),
           ),
@@ -49,9 +49,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
       ),
       content: NavigationBody(
         index: _currentIdex,
-        children: const [
-          FirstScreen(),
-          StatsScreen(),
+        children:  [
+          FirstScreen(rows: 3, columns: 4),
+          RealTimeGraph(),
         ],
       ),
     );
