@@ -14,9 +14,9 @@ class _NavigationScreenState extends State<NavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return NavigationView(
-      appBar: const NavigationAppBar(
+      appBar: NavigationAppBar(
         leading: Center(
-          child: FlutterLogo(size: 25),
+          child: Image.asset('/home/antachua/Flutter_Watchdog/my_app/assets/images/antac_logo.png'),
         ),
       ),
       pane: NavigationPane(
@@ -24,7 +24,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
           padding: const EdgeInsets.only(left: 20),
           child: DefaultTextStyle(
             style: FluentTheme.of(context).typography.title!,
-            child: const Text('Flutter Desktop'),
+            child: const Text('Stadia Watchdog'),
           ),
         ),
         items: [
@@ -50,8 +50,8 @@ class _NavigationScreenState extends State<NavigationScreen> {
       content: NavigationBody(
         index: _currentIdex,
         children:  [
-          FirstScreen(rows: 3, columns: 4),
-          RealTimeGraph(),
+          FirstScreen(),
+          ContainerStatsWidget(),
         ],
       ),
     );

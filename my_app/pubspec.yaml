@@ -17,6 +17,9 @@ dependencies:
   charts_flutter: ^0.11.0
   date_format: ^2.0.7
   process_run: ^0.12.5+2
+  dio: ^4.0.6
+  http: ^0.13.5
+  
 
 dependency_overrides:
   charts_flutter:

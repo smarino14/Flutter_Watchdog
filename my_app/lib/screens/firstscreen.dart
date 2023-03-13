@@ -1,44 +1,94 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:my_app/utils/utils.dart';
+import 'dart:async';
 
 class FirstScreen extends StatefulWidget {
-  final int rows;
-  final int columns;
-
-  FirstScreen({this.rows = 0, this.columns = 0});
-
   @override
   _FirstScreenState createState() => _FirstScreenState();
 }
 
 class _FirstScreenState extends State<FirstScreen> {
-  int _rowCount = 6;
-  int _columnCount = 3;
-  double _rowHeight = 100;
+  Map<String, dynamic> _containerData = {};
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(Duration(milliseconds: 1000), (_) => _refreshData());
+  }
+
+  Future<void> _refreshData() async {
+    final containerData = await checkContainerRunning('docker ps');
+    if (mounted) {
+      setState(() {
+        _containerData = containerData;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.black54,
-      child: Table(
-        defaultColumnWidth: FixedColumnWidth(100.0),
-        children: List.generate(_rowCount, (rowIndex) {
-          return TableRow(
-            children: List.generate(_columnCount, (columnIndex) {
-              return Container(
-                height: _rowHeight,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white)
-                ),
-                child: Center(
-                  child: Text("Row $rowIndex, Column $columnIndex",
-                    style: TextStyle(color: Colors.white))
-                ),
-              );
-            }),
-          );
-        }),
+    final containerWidgets = _containerData.entries.map((entry) {
+      final containerName = entry.key;
+      final containerStatus = entry.value[0];
+      final containerCode = entry.value[1];
+      IconData iconData;
+      Color textColor;
+      bool isExited = false;
+      switch (containerStatus) {
+        case 'Up':
+          iconData = Icons.check_circle;
+          textColor = Colors.green;
+          break;
+        case 'Exited':
+          iconData = Icons.error;
+          textColor = Colors.red;
+          isExited = true;
+          break;
+        case 'Restarting':
+          iconData = Icons.refresh;
+          textColor = Colors.orange;
+          break;
+        default:
+          iconData = Icons.help_outline;
+          textColor = Colors.grey;
+          break;
+      }
+      final statusText = '$containerStatus${containerCode != '0' ? ' ($containerCode)' : ''}';
+      final containerTile = ListTile(
+        leading: Icon(iconData, color: textColor),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(containerName),
+            if (isExited)
+              ElevatedButton(
+                onPressed: () => upContainer(containerName),
+                child: Text('Start'),
+              ),
+          ],
+        ),
+        subtitle: Text(statusText),
+      );
+
+      return containerTile;
+    }).toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Docker Container Status'),
+      ),
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: ListView(
+          children: containerWidgets,
+        ),
       ),
     );
   }
